@@ -10,7 +10,7 @@ export default {
         return this.$store.state.alert
       },
       set (val) {
-        this.$store.commit('setAlert', val)
+        this.$store.commit('showAlert', val)
       }
     },
     type () {

@@ -42,6 +42,11 @@ export const actions = {
       console.error(err.stack)
     }
   },
+  async logout ({ commit }) {
+    Cookies.set('username', null)
+    Cookies.set('password', null)
+    commit('setUser', null)
+  },
   async login ({ commit }, { username, password }) {
     commit('setLoggingIn', true)
     try {

@@ -1,11 +1,8 @@
 <template>
   <v-app>
     <system-alert></system-alert>
-    <v-content v-if="user">
-      <main-app></main-app>
-    </v-content>
-    <v-content v-else>
-      <login-screen></login-screen>
+    <v-content>
+      <nuxt/>
     </v-content>
   </v-app>
 </template>

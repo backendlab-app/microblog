@@ -1,46 +1,43 @@
 <template>
-    <v-container fluid fill-height>
-        <v-layout align-center justify-center>
-          <v-flex xs12 sm10 md6>
-            <v-card flat class="">
-              <v-card-text>
-                <v-form>
-                  <v-text-field
-                    prepend-icon="person" 
-                    name="login" 
-                    label="Login" 
-                    type="text" 
-                    v-model="username"
-                    hint="You can login with the username 'user'"
-                    persistent-hint
-                  ></v-text-field>
-                  <v-text-field
-                    id="password" 
-                    prepend-icon="lock" 
-                    name="password" 
-                    label="Password" 
-                    type="password" 
-                    v-model="password"
-                    hint="You can login with the password 'pass'"
-                    persistent-hint  
-                  ></v-text-field>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn :loading="loading" flat text color="primary" @click="login">Login</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </v-container>
+  <v-card flat class="">
+    <v-card-text>
+      <v-form>
+        <v-text-field
+          prepend-icon="person" 
+          name="login" 
+          hide-details
+          label="Login" 
+          type="text" 
+          outline
+          class="mb-3"
+          v-model="username"
+        ></v-text-field>
+        <v-text-field
+          id="password" 
+          prepend-icon="lock" 
+          name="password" 
+          hide-details
+          label="Password"
+          outline
+          type="password" 
+          v-model="password"
+        ></v-text-field>
+      </v-form>
+    </v-card-text>
+    <v-card-actions class="pt-0">
+      <v-spacer></v-spacer>
+      <v-btn :loading="loading" flat text color="primary" @click="login">Login</v-btn>
+      <v-spacer></v-spacer>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
 export default {
   methods: {
-    login () {
-      this.$store.dispatch('login', { username: this.username, password: this.password })
+    async login () {
+      await this.$store.dispatch('login', { username: this.username, password: this.password })
+      this.$emit('close')
     }
   },
   computed: {
@@ -49,8 +46,8 @@ export default {
     }
   },
   data: () => ({
-    username: 'user',
-    password: 'pass'
+    username: null,
+    password: null
   })
 }
 </script>

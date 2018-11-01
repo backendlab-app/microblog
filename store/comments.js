@@ -4,7 +4,7 @@ const Cookies = require('js-cookie')
 const apiRoot = process.env.API_ROOT
 const customerId = process.env.CUSTOMER_ID
 
-const endpoint = `${apiRoot}${customerId}/microblog/post/`
+const endpoint = `${apiRoot}${customerId}/microblog/comment/`
 
 export const state = () => ({
   objects: {},
