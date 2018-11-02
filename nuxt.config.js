@@ -23,7 +23,8 @@ module.exports = {
   env: {
     API_ROOT: `https://api.backendlab.app/`,
     CUSTOMER_ID: process.env.CUSTOMER_ID,
-    AUTH_STRING: 'Basic ' + btoa(`${masterUser}:${masterPass}`)
+    AUTH_STRING: 'Basic ' + btoa(`${masterUser}:${masterPass}`),
+    GROUP_ID: process.env.GROUP_ID
   },
   plugins: ['~/plugins/vuetify.js'],
   css: ['~/assets/style/app.styl'],
