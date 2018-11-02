@@ -78,9 +78,9 @@ deploy:
                  -e GROUP_ID=$GROUP_ID
                  --log-driver=awslogs
                  --log-opt awslogs-region=us-east-1
-                 --log-opt awslogs-group=www
-                 --log-opt awslogs-stream=staging
-                 -p 5000:5000
+                 --log-opt awslogs-group=samples
+                 --log-opt awslogs-stream=microblog
+                 -p 3000:3000
                  -d $CONTAINER_IMAGE 
     
     # exit the machine
