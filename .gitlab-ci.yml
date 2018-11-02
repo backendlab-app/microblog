@@ -4,24 +4,24 @@ services:
  - docker:dind
 
 stages:
- - build
+#  - build
  - deploy
 
-build:
-  stage: build
+# build:
+#   stage: build
 
-  variables:
-    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
-    DOCKER_DRIVER: overlay2
+#   variables:
+#     CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+#     DOCKER_DRIVER: overlay2
 
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+#   before_script:
+#     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
 
-  script:
-    - docker pull $CONTAINER_IMAGE:latest || true
-    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
-    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
-    - docker push $CONTAINER_IMAGE:latest
+#   script:
+#     - docker pull $CONTAINER_IMAGE:latest || true
+#     - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
+#     - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
+#     - docker push $CONTAINER_IMAGE:latest
 
 deploy:
   stage: deploy
@@ -69,18 +69,18 @@ deploy:
     - docker-machine env $CI_PROJECT_NAME-$CI_JOB_ID --shell sh/bash
     - $(aws ecr get-login --no-include-email --region $AWS_REGION)
     - eval "$(docker-machine env $CI_PROJECT_NAME-$CI_JOB_ID --shell sh/bash)"
-    - docker run -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-                 -e API_HOST=$API_HOST \
-                 -e ADMIN_USER=$ADMIN_USER \
-                 -e ADMIN_PASS=$ADMIN_PASS \
-                 -e CUSTOMER_ID=$CUSTOMER_ID \
-                 -e GROUP_ID=$GROUP_ID \
-                 --log-driver=awslogs \
-                 --log-opt awslogs-region=us-east-1 \
-                 --log-opt awslogs-group=www \
-                 --log-opt awslogs-stream=staging \
-                 -p 5000:5000 \
+    - docker run -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                 -e API_HOST=$API_HOST
+                 -e ADMIN_USER=$ADMIN_USER
+                 -e ADMIN_PASS=$ADMIN_PASS
+                 -e CUSTOMER_ID=$CUSTOMER_ID
+                 -e GROUP_ID=$GROUP_ID
+                 --log-driver=awslogs
+                 --log-opt awslogs-region=us-east-1
+                 --log-opt awslogs-group=www
+                 --log-opt awslogs-stream=staging
+                 -p 5000:5000
                  -d $CONTAINER_IMAGE 
     
     # exit the machine
