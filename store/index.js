@@ -27,19 +27,23 @@ export const mutations = {
 
 export const actions = {
   async nuxtServerInit ({ dispatch, commit }, { req }) {
-    let { username, password } = cookie.parse(req.headers.cookie)
+    try {
+      let { username, password } = cookie.parse(req.headers.cookie)
 
-    if (username && password) {
-      var headers = {
-        Authorization: 'Basic ' + btoa(`${username}:${password}`)
+      if (username && password) {
+        var headers = {
+          Authorization: 'Basic ' + btoa(`${username}:${password}`)
+        }
+        try {
+          var { data } = await axios.get(`${apiRoot}/${customerId}/profile/`, { headers })
+          commit('setUser', data)
+        } catch (err) {
+          console.error(err)
+          commit('logout')
+        }
       }
-      try {
-        var { data } = await axios.get(`${apiRoot}/${customerId}/profile/`, { headers })
-        commit('setUser', data)
-      } catch (err) {
-        console.error(err)
-        commit('logout')
-      }
+    } catch (err) {
+      console.error(err)
     }
   },
   async createUser ({ commit, dispatch }, { username, password }) {
