@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "btoa": "^1.2.1",
+    "cookie": "^0.3.1",
     "dotenv": "^6.1.0",
     "js-cookie": "^2.2.0",
     "moment": "^2.22.2",

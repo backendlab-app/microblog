@@ -4,24 +4,24 @@ services:
  - docker:dind
 
 stages:
-#  - build
+ - build
  - deploy
 
-# build:
-#   stage: build
+build:
+  stage: build
 
-#   variables:
-#     CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
-#     DOCKER_DRIVER: overlay2
+  variables:
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+    DOCKER_DRIVER: overlay2
 
-#   before_script:
-#     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
 
-#   script:
-#     - docker pull $CONTAINER_IMAGE:latest || true
-#     - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
-#     - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
-#     - docker push $CONTAINER_IMAGE:latest
+  script:
+    - docker pull $CONTAINER_IMAGE:latest || true
+    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
+    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
+    - docker push $CONTAINER_IMAGE:latest
 
 deploy:
   stage: deploy

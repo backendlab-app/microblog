@@ -29,7 +29,6 @@ export const actions = {
   async nuxtServerInit ({ dispatch, commit }, { req }) {
     let { username, password } = cookie.parse(req.headers.cookie)
 
-    console.log(username, password)
     if (username && password) {
       var headers = {
         Authorization: 'Basic ' + btoa(`${username}:${password}`)
