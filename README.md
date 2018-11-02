@@ -46,15 +46,15 @@
 
 [create-app]: https://github.com/backendlab-app/microblog/blob/master/screenshots/Screen%20Shot%202018-11-02%20at%2020.40.52.png
 
-[create-group]: 
+[create-group]: https://github.com/backendlab-app/microblog/blob/master/screenshots/create-group.png
 
-[post-model]:
+[post-model]: https://github.com/backendlab-app/microblog/blob/master/screenshots/post-model.png
 
-[post-permissions]:
+[post-permissions]: https://github.com/backendlab-app/microblog/blob/master/screenshots/post-permissions.png
 
-[comment-model]:
+[comment-model]: https://github.com/backendlab-app/microblog/blob/master/screenshots/comment-model.png
 
-[endpoints]:
+[endpoints]: https://github.com/backendlab-app/microblog/blob/master/screenshots/endpoints.png
 
 ### Creating the front end
 
