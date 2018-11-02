@@ -4,7 +4,17 @@
 
 ## Installation
 
-Clone the repository:
+### Creating the backend
+
+1. First, go to https://www.backendlab.app and sign up for a free account and login
+
+2. From your BackendLab home page, click **Create new app** and call it *microblog*
+
+
+.
+
+
+Clone the repository, install the requirements and 
 ```
 git clone https://github.com/backendlab-app/microblog.git
 ```
