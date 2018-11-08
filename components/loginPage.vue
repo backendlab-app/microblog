@@ -1,6 +1,6 @@
 <template>
  <v-container fluid fill-height>
-   <v-snackbar color="info" top :value="true">
+   <v-snackbar color="info" left :value="true">
      Create an account, or simply login with username "test" and password "pass"
    </v-snackbar>
     <v-layout align-center justify-center>

@@ -1,5 +1,5 @@
 <template>
-    <v-snackbar v-model="alert" :color="type" vertical top :timeout="6000" v-if="alert">
+    <v-snackbar v-model="alert" :color="type" top left :timeout="6000" v-if="alert">
       {{ message }}
       <v-btn
         flat
