@@ -37,7 +37,9 @@ export const actions = {
       var headers = {
         Authorization: 'Basic ' + btoa(`${username}:${password}`)
       }
+      console.log(username, password)
       var { data } = await axios.get(endpoint, { headers })
+      console.log(data)
       commit('set', data.results)
     } catch (err) {
       if (err.response) {

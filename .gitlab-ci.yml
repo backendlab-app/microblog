@@ -1,0 +1,91 @@
+image: docker:latest
+
+services:
+ - docker:dind
+
+stages:
+ - build
+ - deploy
+
+build:
+  stage: build
+
+  variables:
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+    DOCKER_DRIVER: overlay2
+
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+
+  script:
+    - docker pull $CONTAINER_IMAGE:latest || true
+    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
+    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
+    - docker push $CONTAINER_IMAGE:latest
+
+deploy:
+  stage: deploy
+  
+  variables:
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+    INSTANCE_TYPE: t3.micro
+    TGT_GROUP: $TGT_GROUP
+    AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+    ADMIN_PASS: $SAMPLE_ADMIN_PASS
+    ADMIN_USER: christopherdavies553@gmail.com
+    CUSTOMER_ID: Hr550z2R4YZ9jKHww
+    GROUP_ID: 5a7ed2df-38cd-4acb-9c31-a4c3e578263e  
+
+  before_script:
+    # install curl, python, pip, requests, awscli, docker machine
+    - apk add --no-cache curl jq python py-pip
+    - pip install awscli requests boto3
+    - curl -L https://github.com/docker/machine/releases/download/v0.13.0/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine
+    - chmod +x /tmp/docker-machine
+    - cp /tmp/docker-machine /usr/local/bin/docker-machine
+
+    # authenticate aws
+    - aws configure set default.region $AWS_REGION
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+
+    # authenticate docker
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+#
+  script:
+    # get the existing staging instances, and write the instance ids to a file
+    - aws ec2 describe-instances > old_instances.json
+    - python get_instance_ids.py
+
+    # create the machine and write the instance id to a file called `newmachineid`
+    - docker-machine create -d amazonec2 --amazonec2-instance-type $INSTANCE_TYPE --engine-env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --engine-env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --engine-env AWS_REGION=$AWS_REGION $CI_PROJECT_NAME-$CI_JOB_ID
+    - docker-machine inspect --format='{{.Driver.InstanceId}}' $CI_PROJECT_NAME-$CI_JOB_ID > newmachineid
+
+    # add the new machine to the relevant staging target groups on the load balancer
+    - aws elbv2 register-targets --target-group-arn $TGT_GROUP --targets Id=`cat newmachineid`
+
+    # login to the machine, log into ECR then build and deploy the app
+    - docker-machine env $CI_PROJECT_NAME-$CI_JOB_ID --shell sh/bash
+    - $(aws ecr get-login --no-include-email --region $AWS_REGION)
+    - eval "$(docker-machine env $CI_PROJECT_NAME-$CI_JOB_ID --shell sh/bash)"
+    - docker run -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                 -e API_HOST=$API_HOST
+                 -e ADMIN_USER=$ADMIN_USER
+                 -e ADMIN_PASS=$ADMIN_PASS
+                 -e CUSTOMER_ID=$CUSTOMER_ID
+                 -e GROUP_ID=$GROUP_ID
+                 --log-driver=awslogs
+                 --log-opt awslogs-region=us-east-1
+                 --log-opt awslogs-group=samples
+                 --log-opt awslogs-stream=microblog
+                 -p 3000:3000
+                 -d $CONTAINER_IMAGE 
+    
+    # exit the machine
+    - docker-machine env --unset --shell sh/bash
+    - eval "$(docker-machine env --unset --shell sh/bash)"
+
+    # trigger the check_status python process, which waits until the service returns a 200 response
+    - python check_status.py

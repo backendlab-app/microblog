@@ -1,5 +1,13 @@
 <template>
-    <v-alert v-model="alert" :type="type" dismissible>{{ message }}</v-alert>
+    <v-snackbar v-model="alert" :color="type" vertical top :timeout="6000" v-if="alert">
+      {{ message }}
+      <v-btn
+        flat
+        @click="alert = null"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
 </template>
 
 <script>

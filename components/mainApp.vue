@@ -94,9 +94,8 @@
                 label="New post"
                 v-model="content"
                 hide-details
-                append-icon="send"
                 :disabled="!user"
-                @click:append="createPost"
+                @keydown.enter="createPost"
               ></v-text-field>
             </v-card>
           </v-dialog>
@@ -178,7 +177,7 @@ export default {
       comments: 'comments/list'
     }),
     coloredPosts () {
-      return this.posts.map(post => Object.assign({ color: this.getRandomColor() }, post))
+      return this.posts.map(post => Object.assign({ color: this.getRandomColor() }, post)).sort((a, b) => { return new Date(b['date-created']) - new Date(a['date-created']) })
     },
     user () {
       return this.$store.state.user
@@ -222,13 +221,17 @@ export default {
         author: this.user.id
       }
       await this.$store.dispatch('posts/create', data)
+      this.newPostDialog = null
+      this.content = null
     }
   },
   mounted () {
     var self = this
-    this.$nextTick(() => {
-      self.$store.dispatch('posts/fetch')
-      self.$store.dispatch('comments/fetch')
+    this.$nextTick(async function () {
+      self.$nuxt.$loading.start()
+      await self.$store.dispatch('posts/fetch')
+      await self.$store.dispatch('comments/fetch')
+      self.$nuxt.$loading.finish()
     })
   }
 }

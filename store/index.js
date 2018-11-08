@@ -1,9 +1,11 @@
 const axios = require('axios')
 const btoa = require('btoa')
 const Cookies = require('js-cookie')
+const cookie = require('cookie')
 
 const apiRoot = process.env.API_ROOT
 const customerId = process.env.CUSTOMER_ID
+const groupId = process.env.GROUP_ID
 
 export const state = () => ({
   user: null,
@@ -18,18 +20,44 @@ export const mutations = {
   setUser (state, user) {
     state.user = user
   },
-  showAlert (state, { type, message }) {
-    state.alert = { type, message }
+  showAlert (state, alert) {
+    state.alert = alert
   }
 }
 
 export const actions = {
+  async nuxtServerInit ({ dispatch, commit }, { req }) {
+    try {
+      let { username, password } = cookie.parse(req.headers.cookie)
+
+      if (username && password) {
+        var headers = {
+          Authorization: 'Basic ' + btoa(`${username}:${password}`)
+        }
+        try {
+          var { data } = await axios.get(`${apiRoot}/${customerId}/profile/`, { headers })
+          commit('setUser', data)
+        } catch (err) {
+          console.error(err)
+          commit('logout')
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  },
   async createUser ({ commit, dispatch }, { username, password }) {
     try {
       var headers = {
         Authorization: process.env.AUTH_STRING
       }
-      var { data } = await axios.post(`${apiRoot}/users`, { username, password }, { headers })
+      var { data } = await axios.post(`${apiRoot}users/`, { username, password, customer: process.env.CUSTOMER_ID }, { headers })
+      var groupResponse = await axios.get(`${apiRoot}groups/${groupId}/`, { headers })
+      var group = groupResponse.data
+      console.log(group)
+      group.users = [ ...group.users, data.id ]
+      console.log(group.users)
+      await axios.put(`${apiRoot}groups/${group.id}/`, group, { headers })
       Cookies.set('username', username)
       Cookies.set('password', password)
       commit('setUser', data)
@@ -53,7 +81,8 @@ export const actions = {
       var headers = {
         Authorization: 'Basic ' + btoa(`${username}:${password}`)
       }
-      var { data } = await axios.get(`${apiRoot}/${customerId}/profile`, { headers })
+      console.log(username, password)
+      var { data } = await axios.get(`${apiRoot}${customerId}/profile/`, { headers })
       Cookies.set('username', username)
       Cookies.set('password', password)
       commit('setUser', data)
